@@ -1,5 +1,6 @@
 # Detektor mozgových nádorov
-
+PROTOTYP README
+---
 Cloudová webová aplikácia na klasifikáciu mozgových nádorov z MRI snímkov pomocou EfficientNet-B0 a Grad-CAM.
 
 ## Architektúra
