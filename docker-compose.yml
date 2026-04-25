@@ -1,0 +1,62 @@
+version: "3.9"
+
+# ─── Local development: all four services on one machine ──────────────────────
+# ML service runs in DEMO MODE unless you place weights at ml-service/weights/model.pth
+# Run:  docker compose up --build
+
+services:
+
+  # ── MongoDB (local stand-in for Atlas) ──────────────────────────────────────
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # ── ML Service ── Google Cloud Run in production ─────────────────────────────
+  ml-service:
+    build: ./ml-service
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      MODEL_WEIGHTS_PATH: /app/weights/model.pth
+      DEVICE: cpu
+      PORT: "8001"
+    volumes:
+      - ./ml-service/weights:/app/weights
+
+  # ── Backend ── Render in production ──────────────────────────────────────────
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      MONGODB_URL: mongodb://mongo:27017
+      MONGODB_DB: tumour_detector
+      ML_SERVICE_URL: http://ml-service:8001
+      CORS_ORIGINS: '["http://localhost:5173","http://localhost:3000"]'
+      PORT: "8000"
+    depends_on:
+      - mongo
+      - ml-service
+
+  # ── Frontend ── Vercel in production ─────────────────────────────────────────
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_BACKEND_URL: http://localhost:8000
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:

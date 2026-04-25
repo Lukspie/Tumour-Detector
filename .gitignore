@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+*.egg
+.pytest_cache/
+
+# Training dataset (download locally via kaggle CLI — not stored in repo)
+ml-service/data/
+
+# Model weights (large binary files — store in cloud storage)
+ml-service/weights/*.pth
+ml-service/weights/*.pt
+ml-service/weights/*.onnx
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Docker
+*.log
