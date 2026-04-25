@@ -194,6 +194,6 @@ Tumour-Detector/
 
 | Člen | Zodpovednosť |
 |---|---|
-| Lukáš | Backend, databáza, ML model, nasadenie |
+| Lukáš Sabol | Backend, DB, ML model, nasadenie |
 | Matej Fodor | Frontend, Backend / testovanie |
 | Lukáš Vaľo | Frontend / Backend / testovanie |
