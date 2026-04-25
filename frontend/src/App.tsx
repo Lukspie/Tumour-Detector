@@ -4,9 +4,12 @@ import type { HistoryItem, PredictionResult } from "./api/predict";
 import Header from "./components/Header";
 import HistoryTable from "./components/HistoryTable";
 import ResultCard from "./components/ResultCard";
+import Auth from "./components/Auth";
 import UploadForm from "./components/UploadForm";
+import PatientCommunity from "./components/PatientCommunity";
 
 export default function App() {
+  const [user, setUser] = useState<{ id: string; name: string } | null>(null);
   const [result, setResult] = useState<PredictionResult | null>(null);
   const [imageUrl, setImageUrl] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -26,8 +29,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    loadHistory();
-  }, [loadHistory]);
+    if (user) {
+      loadHistory();
+    }
+  }, [loadHistory, user]);
 
   const handleSubmit = async (file: File) => {
     setLoading(true);
@@ -46,15 +51,27 @@ export default function App() {
     }
   };
 
+  if (!user) {
+    return <Auth onLogin={(u) => setUser(u)} />;
+  }
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-slate-50">
       <Header />
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Left column: upload + history */}
         <div className="space-y-8">
           <div className="bg-white rounded-2xl shadow-md p-6 border border-slate-200">
-            <h2 className="font-semibold text-slate-700 mb-4">Upload MRI Scan</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="font-semibold text-slate-700">Upload MRI Scan</h2>
+              <button 
+                onClick={() => setUser(null)}
+                className="text-xs text-slate-400 hover:text-cyan-600 transition-colors font-medium"
+              >
+                Logout ({user.name})
+              </button>
+            </div>
             <UploadForm onSubmit={handleSubmit} loading={loading} />
           </div>
 
@@ -75,16 +92,22 @@ export default function App() {
           </div>
         </div>
 
-        {/* Right column: result */}
-        <div>
+        {/* Right column: result + community */}
+        <div className="space-y-8">
           {loading && (
             <div className="bg-white rounded-2xl shadow-md p-12 border border-slate-200 text-center space-y-4">
-              <div className="inline-block w-12 h-12 border-4 border-cyan-200 border-t-cyan-600 rounded-full animate-spin" />
+              <div className="inline-block w-12 h-12 border-4 border-cyan-100 border-t-cyan-600 rounded-full animate-spin" />
               <p className="text-slate-500 text-sm">Running AI analysis…</p>
             </div>
           )}
 
-          {!loading && result && <ResultCard result={result} imageUrl={imageUrl} />}
+          {!loading && result && (
+            <div className="space-y-8 animate-in fade-in duration-500">
+              <ResultCard result={result} imageUrl={imageUrl} />
+              {/* Sekcia pre pacientskú komunitu/blog */}
+              <PatientCommunity userId={user.id} />
+            </div>
+          )}
 
           {!loading && !result && (
             <div className="bg-white rounded-2xl shadow-md p-12 border border-slate-200 text-center text-slate-400 space-y-3">
