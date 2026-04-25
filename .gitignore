@@ -34,5 +34,9 @@ Thumbs.db
 .vscode/settings.json
 .idea/
 
+# Claude Code project settings
+.claude/
+.mcp.json
+
 # Docker
 *.log
