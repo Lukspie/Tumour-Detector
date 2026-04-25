@@ -21,6 +21,33 @@ export interface HistoryItem {
   timestamp: string;
 }
 
+export interface UserProfile {
+  username: string;
+  is_patient: boolean;
+  can_be_contacted: boolean;
+  blog_post?: string;
+}
+
+export async function loginUser(credentials: any) {
+  const res = await fetch(`${BASE}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials)
+  });
+  if (!res.ok) throw new Error("Invalid credentials");
+  return res.json();
+}
+
+export async function updatePatientProfile(userId: string, profile: UserProfile) {
+  const res = await fetch(`${BASE}/users/${userId}/profile`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(profile)
+  });
+  if (!res.ok) throw new Error("Failed to update profile");
+  return res.json();
+}
+
 export async function predictTumour(file: File): Promise<PredictionResult> {
   const body = new FormData();
   body.append("file", file);
