@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { loginUser } from "../api/predict";
+import { loginUser, registerUser } from "../api/predict";
 
 interface Props {
   onLogin: (user: { id: string; name: string }) => void;
@@ -15,10 +15,12 @@ export default function Auth({ onLogin }: Props) {
     e.preventDefault();
     setLoading(true);
     try {
-      const data = await loginUser({ username, password });
+      const data = isLogin
+        ? await loginUser({ username, password })
+        : await registerUser({ username, password });
       onLogin({ id: data.userId, name: data.username });
     } catch (err) {
-      alert("Auth failed — check backend console");
+      alert(isLogin ? "Login zlyhal — skontroluj údaje" : "Registrácia zlyhala — používateľ možno už existuje");
     } finally {
       setLoading(false);
     }

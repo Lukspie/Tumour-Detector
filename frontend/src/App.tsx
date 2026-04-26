@@ -60,7 +60,6 @@ export default function App() {
       <Header />
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        {/* Left column: upload + history */}
         <div className="space-y-8">
           <div className="bg-white rounded-2xl shadow-md p-6 border border-slate-200">
             <div className="flex justify-between items-center mb-4">
@@ -92,7 +91,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Right column: result + community */}
         <div className="space-y-8">
           {loading && (
             <div className="bg-white rounded-2xl shadow-md p-12 border border-slate-200 text-center space-y-4">
@@ -104,7 +102,6 @@ export default function App() {
           {!loading && result && (
             <div className="space-y-8 animate-in fade-in duration-500">
               <ResultCard result={result} imageUrl={imageUrl} />
-              {/* Sekcia pre pacientskú komunitu/blog */}
               <PatientCommunity userId={user.id} />
             </div>
           )}

@@ -28,6 +28,16 @@ export interface UserProfile {
   blog_post?: string;
 }
 
+export async function registerUser(credentials: { username: string; password: string }) {
+  const res = await fetch(`${BASE}/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials)
+  });
+  if (!res.ok) throw new Error("Registration failed");
+  return res.json();
+}
+
 export async function loginUser(credentials: any) {
   const res = await fetch(`${BASE}/login`, {
     method: "POST",

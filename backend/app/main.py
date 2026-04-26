@@ -8,6 +8,7 @@ from .core.config import settings
 from .db.mongodb import close_client
 from .routes.history import router as history_router
 from .routes.predict import router as predict_router
+from .routes.users import router as users_router
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s  %(name)s  %(message)s")
 
@@ -35,6 +36,7 @@ app.add_middleware(
 
 app.include_router(predict_router, tags=["Prediction"])
 app.include_router(history_router, tags=["History"])
+app.include_router(users_router, tags=["Users"])
 
 
 @app.get("/health", tags=["Health"])
