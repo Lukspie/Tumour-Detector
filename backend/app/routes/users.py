@@ -1,3 +1,4 @@
+import bcrypt
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from ..db.mongodb import get_client
@@ -9,6 +10,12 @@ class Credentials(BaseModel):
     username: str
     password: str
 
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
+def verify_password(password: str, hashed: str) -> bool:
+    return bcrypt.checkpw(password.encode(), hashed.encode())
+
 @router.post("/register")
 async def register(credentials: Credentials):
     client = get_client()
@@ -18,7 +25,7 @@ async def register(credentials: Credentials):
         raise HTTPException(status_code=400, detail="User already exists")
     result = await db.users.insert_one({
         "username": credentials.username,
-        "password": credentials.password,  
+        "password": hash_password(credentials.password),
     })
     return {"userId": str(result.inserted_id), "username": credentials.username}
 
@@ -26,10 +33,7 @@ async def register(credentials: Credentials):
 async def login(credentials: Credentials):
     client = get_client()
     db = client[settings.MONGODB_DB]
-    user = await db.users.find_one({
-        "username": credentials.username,
-        "password": credentials.password,
-    })
-    if not user:
+    user = await db.users.find_one({"username": credentials.username})
+    if not user or not verify_password(credentials.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     return {"userId": str(user["_id"]), "username": user["username"]}
