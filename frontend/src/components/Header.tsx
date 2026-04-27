@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 type Page = "main" | "about" | "dataset" | "profile";
 
 interface Props {
@@ -35,13 +37,23 @@ function LogoutIcon() {
 }
 
 export default function Header({ isDark, onToggle, user, onLogout, onShowAuth, page, onNavigate }: Props) {
+  const [logoFlipped, setLogoFlipped] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLogoFlipped(true);
+      setTimeout(() => setLogoFlipped(false), 900);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   const navItem = (target: Page, label: string) => (
     <button
       onClick={() => onNavigate(target)}
-      className={`text-xs font-medium transition-colors px-1 pb-0.5 border-b ${
+      className={`text-xs font-mono font-medium transition-colors px-1 pb-0.5 border-b tracking-wider ${
         page === target
           ? "dark:border-cyan-400 dark:text-cyan-400 border-cyan-600 text-cyan-600"
-          : "border-transparent dark:text-slate-400 dark:hover:text-slate-200 text-slate-500 hover:text-slate-800"
+          : "border-transparent dark:text-slate-500 dark:hover:text-slate-200 text-slate-500 hover:text-slate-800"
       }`}
     >
       {label}
@@ -53,18 +65,18 @@ export default function Header({ isDark, onToggle, user, onLogout, onShowAuth, p
       <div className="w-full px-6 py-3 flex items-center gap-4">
         <button
           onClick={() => onNavigate("main")}
-          className="w-9 h-9 relative group cursor-pointer select-none flex-shrink-0 focus:outline-none"
+          className="w-9 h-9 relative cursor-pointer select-none flex-shrink-0 focus:outline-none"
           aria-label="Go to home"
         >
           <img
             src="/base.png"
             alt="Logo"
-            className="w-9 h-9 absolute inset-0 transition-opacity duration-300 opacity-100 group-hover:opacity-0"
+            className={`w-9 h-9 absolute inset-0 transition-opacity duration-500 ${logoFlipped ? "opacity-0" : "opacity-100"}`}
           />
           <img
             src="/mrisprite.png"
             alt="Logo MRI"
-            className="w-9 h-9 absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+            className={`w-9 h-9 absolute inset-0 transition-opacity duration-500 ${logoFlipped ? "opacity-100" : "opacity-0"}`}
           />
         </button>
 
@@ -76,13 +88,13 @@ export default function Header({ isDark, onToggle, user, onLogout, onShowAuth, p
           >
             Cortex AI
           </h1>
-          <p className="text-[10px] dark:text-slate-500 text-slate-400 leading-tight">
-            Brain Tumour Detection
+          <p className="text-[10px] font-mono dark:text-slate-600 text-slate-400 leading-tight tracking-widest uppercase">
+            Neural Analysis
           </p>
         </div>
 
         <nav className="hidden sm:flex items-center gap-5 ml-6">
-          {navItem("about", "About Us")}
+          {navItem("about", "About")}
           {navItem("dataset", "Dataset")}
         </nav>
 
@@ -90,10 +102,10 @@ export default function Header({ isDark, onToggle, user, onLogout, onShowAuth, p
           <button
             onClick={onToggle}
             title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border dark:border-mri-border dark:text-slate-400 dark:hover:border-cyan-500 dark:hover:text-cyan-400 border-slate-300 text-slate-500 hover:border-cyan-500 hover:text-cyan-600 transition-colors"
+            className="flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded border dark:border-mri-border dark:text-slate-500 dark:hover:border-cyan-700 dark:hover:text-cyan-400 border-slate-300 text-slate-500 hover:border-cyan-500 hover:text-cyan-600 transition-colors"
           >
             {isDark ? <SunIcon /> : <MoonIcon />}
-            <span className="hidden sm:inline">{isDark ? "Light mode" : "Dark mode"}</span>
+            <span className="hidden sm:inline">{isDark ? "Light" : "Dark"}</span>
           </button>
 
           {user ? (
@@ -101,16 +113,16 @@ export default function Header({ isDark, onToggle, user, onLogout, onShowAuth, p
               <button
                 onClick={() => onNavigate("profile")}
                 title="View profile"
-                className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border transition-colors ${
+                className={`flex items-center gap-2 px-2.5 py-1.5 rounded border transition-colors ${
                   page === "profile"
                     ? "dark:border-cyan-600 dark:bg-cyan-950/30 dark:text-cyan-300 border-cyan-500 bg-cyan-50 text-cyan-700"
-                    : "dark:border-mri-border dark:bg-mri-700 dark:hover:border-cyan-600 dark:text-slate-300 border-slate-200 bg-white hover:border-cyan-400 text-slate-700"
+                    : "dark:border-mri-border dark:bg-mri-700 dark:hover:border-cyan-700 dark:text-slate-300 border-slate-200 bg-white hover:border-cyan-400 text-slate-700"
                 }`}
               >
                 <span className="w-6 h-6 rounded-full bg-cyan-600 dark:bg-cyan-700 flex items-center justify-center text-white text-xs font-bold uppercase flex-shrink-0">
                   {user.name[0]}
                 </span>
-                <span className="hidden sm:block text-xs font-medium max-w-[120px] truncate">
+                <span className="hidden sm:block text-xs font-mono max-w-[120px] truncate">
                   {user.name}
                 </span>
               </button>
@@ -118,23 +130,23 @@ export default function Header({ isDark, onToggle, user, onLogout, onShowAuth, p
               <button
                 onClick={onLogout}
                 title="Logout"
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border dark:border-mri-border dark:text-slate-500 dark:hover:border-red-800 dark:hover:text-red-400 border-slate-200 text-slate-400 hover:border-red-300 hover:text-red-500 transition-colors"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded border dark:border-mri-border dark:text-slate-600 dark:hover:border-red-900 dark:hover:text-red-400 border-slate-200 text-slate-400 hover:border-red-300 hover:text-red-500 transition-colors"
               >
                 <LogoutIcon />
-                <span className="hidden sm:inline text-xs">Logout</span>
+                <span className="hidden sm:inline text-xs font-mono">Logout</span>
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => onShowAuth("login")}
-                className="text-xs px-3 py-1.5 rounded-lg border dark:border-mri-border dark:text-slate-300 dark:hover:border-cyan-600 dark:hover:text-cyan-400 border-slate-300 text-slate-600 hover:border-cyan-500 hover:text-cyan-600 transition-colors"
+                className="text-xs font-mono px-3 py-1.5 rounded border dark:border-mri-border dark:text-slate-400 dark:hover:border-cyan-700 dark:hover:text-cyan-400 border-slate-300 text-slate-600 hover:border-cyan-500 hover:text-cyan-600 transition-colors"
               >
                 Sign in
               </button>
               <button
                 onClick={() => onShowAuth("register")}
-                className="text-xs px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 dark:bg-cyan-700 dark:hover:bg-cyan-600 text-white font-semibold transition-colors"
+                className="text-xs font-mono px-3 py-1.5 rounded bg-cyan-600 hover:bg-cyan-500 dark:bg-cyan-700 dark:hover:bg-cyan-600 text-white font-semibold transition-colors"
               >
                 Create account
               </button>

@@ -7,3 +7,22 @@
     @apply bg-slate-100 text-slate-800 antialiased;
   }
 }
+
+@keyframes scandown {
+  0%   { top: -2px; }
+  100% { top: 100%; }
+}
+
+@keyframes flicker {
+  0%, 94%, 100% { opacity: 1; }
+  95%, 99%      { opacity: 0.35; }
+}
+
+.animate-scandown {
+  animation: scandown 2s linear infinite;
+  position: absolute;
+}
+
+.animate-flicker {
+  animation: flicker 4s ease-in-out infinite;
+}

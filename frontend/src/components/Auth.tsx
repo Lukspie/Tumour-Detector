@@ -12,9 +12,11 @@ export default function Auth({ initialMode = "login", onLogin, onClose }: Props)
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     setLoading(true);
     try {
       const data = isLogin
@@ -23,7 +25,7 @@ export default function Auth({ initialMode = "login", onLogin, onClose }: Props)
       onLogin({ id: data.userId, name: data.username });
       onClose();
     } catch {
-      alert(
+      setError(
         isLogin
           ? "Login failed — check your credentials."
           : "Registration failed — username may already exist."
@@ -35,7 +37,7 @@ export default function Auth({ initialMode = "login", onLogin, onClose }: Props)
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -51,24 +53,16 @@ export default function Auth({ initialMode = "login", onLogin, onClose }: Props)
 
         <div className="flex justify-center mb-6">
           <div className="w-14 h-14 relative group cursor-default select-none">
-            <img
-              src="/base.png"
-              alt="Logo"
-              className="w-14 h-14 absolute inset-0 transition-opacity duration-300 opacity-100 group-hover:opacity-0"
-            />
-            <img
-              src="/mrisprite.png"
-              alt="Logo MRI"
-              className="w-14 h-14 absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100"
-            />
+            <img src="/base.png" alt="Logo" className="w-14 h-14 absolute inset-0 transition-opacity duration-300 opacity-100 group-hover:opacity-0" />
+            <img src="/mrisprite.png" alt="Logo MRI" className="w-14 h-14 absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100" />
           </div>
         </div>
 
         <h2 className="text-xl font-bold dark:text-slate-100 text-slate-800 text-center mb-1">
           {isLogin ? "Sign in" : "Create account"}
         </h2>
-        <p className="dark:text-slate-500 text-slate-400 text-sm text-center mb-8">
-          Cortex AI — Brain Tumour Detection
+        <p className="dark:text-slate-500 text-slate-400 text-xs font-mono text-center mb-8 uppercase tracking-widest">
+          Cortex AI — Neural Analysis
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -90,6 +84,13 @@ export default function Auth({ initialMode = "login", onLogin, onClose }: Props)
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+
+          {error && (
+            <p className="text-xs text-red-500 dark:text-red-400 font-mono px-1">
+              {error}
+            </p>
+          )}
+
           <button
             type="submit"
             disabled={loading}
@@ -100,7 +101,7 @@ export default function Auth({ initialMode = "login", onLogin, onClose }: Props)
         </form>
 
         <button
-          onClick={() => setIsLogin(!isLogin)}
+          onClick={() => { setIsLogin(!isLogin); setError(null); }}
           className="w-full mt-5 text-sm dark:text-slate-500 dark:hover:text-cyan-400 text-slate-400 hover:text-cyan-600 transition"
         >
           {isLogin ? "No account? Create one" : "Already have an account? Sign in"}

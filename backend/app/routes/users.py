@@ -1,4 +1,6 @@
 import bcrypt
+from typing import Optional
+from bson import ObjectId
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from ..db.mongodb import get_client
@@ -37,3 +39,31 @@ async def login(credentials: Credentials):
     if not user or not verify_password(credentials.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     return {"userId": str(user["_id"]), "username": user["username"]}
+
+
+class PatientProfile(BaseModel):
+    username: str
+    is_patient: bool
+    can_be_contacted: bool
+    blog_post: Optional[str] = None
+
+
+@router.put("/users/{user_id}/profile")
+async def update_profile(user_id: str, profile: PatientProfile):
+    client = get_client()
+    db = client[settings.MONGODB_DB]
+    try:
+        oid = ObjectId(user_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid user id")
+    result = await db.users.update_one(
+        {"_id": oid},
+        {"$set": {
+            "is_patient": profile.is_patient,
+            "can_be_contacted": profile.can_be_contacted,
+            "blog_post": profile.blog_post,
+        }},
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"status": "ok"}

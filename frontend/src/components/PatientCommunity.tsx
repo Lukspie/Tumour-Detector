@@ -14,6 +14,7 @@ export default function PatientCommunity({ userId, userName, onShowAuth }: Props
   const [blog, setBlog] = useState("");
   const [contact, setContact] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [dismissed, setDismissed] = useState(false);
 
   if (dismissed) return null;
@@ -21,6 +22,7 @@ export default function PatientCommunity({ userId, userName, onShowAuth }: Props
   const handleSave = async () => {
     if (!userId) return;
     setSaving(true);
+    setError(null);
     try {
       await updatePatientProfile(userId, {
         username: userName ?? "User",
@@ -30,7 +32,7 @@ export default function PatientCommunity({ userId, userName, onShowAuth }: Props
       });
       setState("saved");
     } catch {
-      alert("Failed to save profile. Please try again.");
+      setError("Failed to save profile. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -38,7 +40,7 @@ export default function PatientCommunity({ userId, userName, onShowAuth }: Props
 
   if (state === "saved") {
     return (
-      <div className="dark:bg-mri-800 dark:border dark:border-mri-border bg-white border border-slate-200 rounded-2xl p-6 space-y-2">
+      <div className="dark:bg-mri-800 dark:border dark:border-mri-border bg-white border border-slate-200 rounded-2xl p-5">
         <div className="flex items-start gap-3">
           <div className="w-8 h-8 rounded-full bg-emerald-600/20 dark:bg-emerald-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-emerald-500">
@@ -46,9 +48,7 @@ export default function PatientCommunity({ userId, userName, onShowAuth }: Props
             </svg>
           </div>
           <div>
-            <p className="text-sm font-semibold dark:text-slate-200 text-slate-800">
-              Follow-Up Profile Registered
-            </p>
+            <p className="text-sm font-semibold dark:text-slate-200 text-slate-800">Follow-Up Profile Registered</p>
             <p className="text-xs dark:text-slate-500 text-slate-400 mt-0.5">
               Your profile has been saved. You can update it at any time from your account.
               {contact && " An oncology specialist may reach out for further consultation."}
@@ -67,7 +67,7 @@ export default function PatientCommunity({ userId, userName, onShowAuth }: Props
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-red-500 flex-shrink-0">
               <path fillRule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clipRule="evenodd" />
             </svg>
-            <span className="text-xs font-semibold uppercase tracking-widest text-red-600 dark:text-red-400">
+            <span className="text-xs font-mono font-semibold uppercase tracking-widest text-red-600 dark:text-red-400">
               Tumour Indicators Detected
             </span>
           </div>
@@ -102,7 +102,7 @@ export default function PatientCommunity({ userId, userName, onShowAuth }: Props
             </div>
           ) : (
             <div className="space-y-3">
-              <p className="text-xs dark:text-slate-500 text-slate-400">
+              <p className="text-xs font-mono dark:text-slate-500 text-slate-400">
                 Create an account to enable follow-up tracking and specialist contact.
               </p>
               <div className="flex items-center gap-2">
@@ -144,18 +144,18 @@ export default function PatientCommunity({ userId, userName, onShowAuth }: Props
       </div>
 
       <div className="space-y-1.5">
-        <label className="text-xs font-semibold dark:text-slate-400 text-slate-500 uppercase tracking-wider">
+        <label className="text-xs font-mono font-semibold dark:text-slate-400 text-slate-500 uppercase tracking-wider">
           Clinical Notes / Current Status
         </label>
         <textarea
-          className="w-full dark:bg-mri-700 dark:border-mri-border dark:text-slate-200 dark:placeholder-slate-600 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:border-cyan-500 dark:focus:border-cyan-600 outline-none h-28 resize-none transition-colors placeholder:text-slate-400 dark:placeholder:text-slate-600"
+          className="w-full dark:bg-mri-700 dark:border-mri-border dark:text-slate-200 dark:placeholder-slate-600 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:border-cyan-500 dark:focus:border-cyan-600 outline-none h-28 resize-none transition-colors"
           placeholder="e.g. Awaiting neurosurgery consultation, currently on corticosteroids..."
           value={blog}
           onChange={(e) => setBlog(e.target.value)}
         />
       </div>
 
-      <label className="flex items-start gap-3 p-4 dark:bg-mri-700 dark:border-mri-border bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:dark:border-cyan-800 hover:border-cyan-200 transition-colors group">
+      <label className="flex items-start gap-3 p-4 dark:bg-mri-700 dark:border-mri-border bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:dark:border-cyan-800 hover:border-cyan-200 transition-colors">
         <input
           type="checkbox"
           checked={contact}
@@ -171,6 +171,10 @@ export default function PatientCommunity({ userId, userName, onShowAuth }: Props
           </p>
         </div>
       </label>
+
+      {error && (
+        <p className="text-xs text-red-500 dark:text-red-400 font-mono">{error}</p>
+      )}
 
       <div className="flex items-center gap-3 pt-1">
         <button
