@@ -91,7 +91,6 @@ export default function Header({ isDark, onToggle, user, onLogout, onShowAuth, p
           <span
             className="text-[10px] font-mono font-bold uppercase tracking-widest dark:text-slate-500 text-slate-400 mt-0.5 select-none"
           >
-            Cortex AI
           </span>
         </div>
 
