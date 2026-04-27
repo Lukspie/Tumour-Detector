@@ -10,9 +10,10 @@ import PatientCommunity from "./components/PatientCommunity";
 import RecentActivity from "./components/RecentActivity";
 import AboutPage from "./pages/AboutPage";
 import DatasetPage from "./pages/DatasetPage";
+import ProfilePage from "./pages/ProfilePage";
 import { PATIENTS } from "./data/patients";
 
-type Page = "main" | "about" | "dataset";
+type Page = "main" | "about" | "dataset" | "profile";
 
 export default function App() {
   const [isDark, setIsDark] = useState(true);
@@ -30,13 +31,16 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [historyLoading, setHistoryLoading] = useState(true);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
 
   const loadHistory = useCallback(async () => {
+    setHistoryLoading(true);
     try {
       const items = await fetchHistory();
       setHistory(items);
@@ -59,7 +63,7 @@ export default function App() {
     try {
       const prediction = await predictTumour(file);
       setResult(prediction);
-      await loadHistory();
+      if (user) await loadHistory();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected error");
     } finally {
@@ -75,19 +79,30 @@ export default function App() {
   const handleLogout = () => {
     localStorage.removeItem("tumour_user");
     setUser(null);
+    setPage("main");
   };
 
-  if (!user) {
-    return <Auth onLogin={handleLogin} />;
-  }
+  const handleShowAuth = (mode: "login" | "register") => {
+    setAuthMode(mode);
+    setShowAuthModal(true);
+  };
 
   return (
     <div className="min-h-screen flex flex-col dark:bg-mri-900 bg-slate-100 transition-colors duration-300">
+      {showAuthModal && (
+        <Auth
+          initialMode={authMode}
+          onLogin={handleLogin}
+          onClose={() => setShowAuthModal(false)}
+        />
+      )}
+
       <Header
         isDark={isDark}
         onToggle={() => setIsDark((d) => !d)}
         user={user}
         onLogout={handleLogout}
+        onShowAuth={handleShowAuth}
         page={page}
         onNavigate={setPage}
       />
@@ -104,8 +119,30 @@ export default function App() {
         </main>
       )}
 
+      {page === "profile" && user && (
+        <main className="flex-1">
+          <ProfilePage user={user} />
+        </main>
+      )}
+
       {page === "main" && (
         <main className="flex-1 w-full max-w-2xl mx-auto px-4 py-10 space-y-6">
+          <div className="text-center space-y-3 pb-2">
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold tracking-widest uppercase dark:bg-red-950/50 dark:text-red-400 dark:border dark:border-red-900/60 bg-red-50 text-red-600 border border-red-200">
+              Not for clinical use
+            </span>
+            <h1
+              className="text-3xl font-extrabold tracking-tight dark:text-slate-100 text-slate-900"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+              Brain Tumour Analysis
+            </h1>
+            <p className="dark:text-slate-400 text-slate-500 text-sm max-w-md mx-auto leading-relaxed">
+              Upload a brain MRI scan for AI-powered tumour classification. The model returns a
+              confidence score and a Grad-CAM heatmap highlighting regions of concern.
+            </p>
+          </div>
+
           <div className="dark:bg-mri-800 dark:border dark:border-mri-border bg-white border border-slate-200 rounded-2xl shadow-lg p-6">
             <UploadForm onSubmit={handleSubmit} loading={loading} />
           </div>
@@ -126,21 +163,29 @@ export default function App() {
           {!loading && result && (
             <div className="space-y-6">
               <ResultCard result={result} imageUrl={imageUrl} />
-              <PatientCommunity userId={user.id} />
+              {result.label === "tumor" && (
+                <PatientCommunity
+                  userId={user?.id ?? null}
+                  userName={user?.name}
+                  onShowAuth={handleShowAuth}
+                />
+              )}
             </div>
           )}
 
-          <div className="dark:bg-mri-800 dark:border dark:border-mri-border bg-white border border-slate-200 rounded-2xl shadow-lg p-6">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-xs font-semibold dark:text-slate-400 text-slate-500 uppercase tracking-widest">
-                Recent Scans
-              </h2>
-              <span className="text-xs dark:text-slate-600 text-slate-400">
-                {history.length + PATIENTS.length} total
-              </span>
+          {user && (
+            <div className="dark:bg-mri-800 dark:border dark:border-mri-border bg-white border border-slate-200 rounded-2xl shadow-lg p-6">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-xs font-semibold dark:text-slate-400 text-slate-500 uppercase tracking-widest">
+                  Recent Scans
+                </h2>
+                <span className="text-xs dark:text-slate-600 text-slate-400">
+                  {history.length + PATIENTS.length} total
+                </span>
+              </div>
+              <RecentScans history={history} patients={PATIENTS} loading={historyLoading} />
             </div>
-            <RecentScans history={history} patients={PATIENTS} loading={historyLoading} />
-          </div>
+          )}
         </main>
       )}
 

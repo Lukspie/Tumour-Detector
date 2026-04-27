@@ -1,0 +1,105 @@
+import { useState } from "react";
+import { updatePatientProfile } from "../api/predict";
+
+interface Props {
+  user: { id: string; name: string };
+}
+
+export default function ProfilePage({ user }: Props) {
+  const [blog, setBlog] = useState("");
+  const [contact, setContact] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaved(false);
+    try {
+      await updatePatientProfile(user.id, {
+        username: user.name,
+        is_patient: true,
+        can_be_contacted: contact,
+        blog_post: blog,
+      });
+      setSaved(true);
+    } catch {
+      alert("Failed to save profile. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="w-full max-w-xl mx-auto px-4 py-12 space-y-8">
+      <div className="flex items-center gap-5">
+        <div className="w-16 h-16 rounded-full bg-cyan-600 dark:bg-cyan-700 flex items-center justify-center text-white text-2xl font-bold uppercase flex-shrink-0 shadow-lg">
+          {user.name[0]}
+        </div>
+        <div>
+          <h1
+            className="text-2xl font-extrabold dark:text-slate-100 text-slate-900 tracking-tight"
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
+          >
+            {user.name}
+          </h1>
+          <p className="text-sm dark:text-slate-500 text-slate-400 mt-0.5">Patient Account</p>
+        </div>
+      </div>
+
+      <div className="dark:bg-mri-800 dark:border dark:border-mri-border bg-white border border-slate-200 rounded-2xl p-6 space-y-5 shadow-sm">
+        <div>
+          <h2 className="text-sm font-bold dark:text-slate-200 text-slate-800 uppercase tracking-widest">
+            Patient Follow-Up Profile
+          </h2>
+          <p className="text-xs dark:text-slate-500 text-slate-400 mt-1">
+            This information is shared with our oncology review team. All fields are optional.
+          </p>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold dark:text-slate-400 text-slate-500 uppercase tracking-wider">
+            Clinical Notes / Current Status
+          </label>
+          <textarea
+            className="w-full dark:bg-mri-700 dark:border-mri-border dark:text-slate-200 dark:placeholder-slate-600 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:border-cyan-500 dark:focus:border-cyan-600 outline-none h-32 resize-none transition-colors"
+            placeholder="e.g. Awaiting neurosurgery consultation, currently undergoing radiotherapy, post-op recovery..."
+            value={blog}
+            onChange={(e) => setBlog(e.target.value)}
+          />
+        </div>
+
+        <label className="flex items-start gap-3 p-4 dark:bg-mri-700 dark:border-mri-border bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:dark:border-cyan-800 hover:border-cyan-200 transition-colors">
+          <input
+            type="checkbox"
+            checked={contact}
+            onChange={(e) => setContact(e.target.checked)}
+            className="mt-0.5 w-4 h-4 rounded accent-cyan-600 flex-shrink-0 cursor-pointer"
+          />
+          <div>
+            <span className="text-sm dark:text-slate-200 text-slate-800 font-medium">
+              Consent to specialist contact
+            </span>
+            <p className="text-xs dark:text-slate-500 text-slate-400 mt-0.5">
+              I consent to being contacted by an oncology specialist for further consultation.
+            </p>
+          </div>
+        </label>
+
+        <div className="flex items-center gap-3 pt-1">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="px-6 py-2.5 bg-cyan-600 hover:bg-cyan-500 dark:bg-cyan-700 dark:hover:bg-cyan-600 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-40"
+          >
+            {saving ? "Saving..." : "Save Profile"}
+          </button>
+          {saved && (
+            <span className="text-xs text-emerald-500 dark:text-emerald-400 font-medium">
+              Profile saved.
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

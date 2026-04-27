@@ -12,6 +12,16 @@ Cloudová webová aplikácia na klasifikáciu mozgových nádorov z MRI snímkov
 | Databáza | MongoDB | Atlas |
 | ML Služba | PyTorch + FastAPI | Google Cloud Run |
 
+### Prečo tieto služby?
+
+**Vercel** — nasadenie frontendu je maximálne jednoduché: každý push na `main` automaticky spustí build a deploy bez akejkoľvek konfigurácie. Bezplatný tier plne pokrýva potreby projektu.
+
+**Render** — ponúka priamočiare nasadenie Python/FastAPI aplikácií priamo z GitHubu s automatickým redeploy pri každom commite. Nevyžaduje žiadnu infraštruktúru navyše a bezplatný tier je dostatočný pre školský projekt.
+
+**MongoDB Atlas** — bezplatný M0 cluster poskytuje plnohodnotnú cloudovú NoSQL databázu bez nutnosti spravovať server. Flexibilná schéma dokumentov sa hodí pre ukladanie predikcií, kde sa štruktúra môže meniť.
+
+**Google Cloud Run** — serverless kontajnerová platforma ideálna pre ML službu, ktorá potrebuje väčšie pamäťové nároky (2 GB RAM pre PyTorch). Platí sa len za skutočné použitie a škálovanie prebieha automaticky.
+
 ```
 Používateľ → Vercel (Frontend)
                  ↓
