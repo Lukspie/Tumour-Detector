@@ -62,43 +62,41 @@ export default function Header({ isDark, onToggle, user, onLogout, onShowAuth, p
 
   return (
     <header className="bg-white dark:bg-mri-800 border-b border-slate-200 dark:border-mri-border text-slate-900 dark:text-slate-100 transition-colors duration-300">
-      <div className="w-full px-6 py-3 flex items-center gap-4">
-        <button
-          onClick={() => onNavigate("main")}
-          className="w-9 h-9 relative cursor-pointer select-none flex-shrink-0 focus:outline-none"
-          aria-label="Go to home"
-        >
-          <img
-            src="/base.png"
-            alt="Logo"
-            className={`w-9 h-9 absolute inset-0 transition-opacity duration-500 ${logoFlipped ? "opacity-0" : "opacity-100"}`}
-          />
-          <img
-            src="/mrisprite.png"
-            alt="Logo MRI"
-            className={`w-9 h-9 absolute inset-0 transition-opacity duration-500 ${logoFlipped ? "opacity-100" : "opacity-0"}`}
-          />
-        </button>
+      <div className="relative w-full px-6 py-2 flex items-center min-h-[60px]">
 
-        <div>
-          <h1
-            className="text-base font-extrabold leading-tight tracking-wide dark:text-slate-100 text-slate-900 cursor-pointer"
-            style={{ fontFamily: "'Montserrat', sans-serif" }}
-            onClick={() => onNavigate("main")}
-          >
-            Cortex AI
-          </h1>
-          <p className="text-[10px] font-mono dark:text-slate-600 text-slate-400 leading-tight tracking-widest uppercase">
-            Neural Analysis
-          </p>
-        </div>
-
-        <nav className="hidden sm:flex items-center gap-5 ml-6">
+        {/* Left — nav */}
+        <nav className="hidden sm:flex items-center gap-5 z-10">
           {navItem("about", "About")}
           {navItem("dataset", "Dataset")}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        {/* Center — logo (absolutely centred) */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
+          <button
+            onClick={() => onNavigate("main")}
+            aria-label="Go to home"
+            className="relative w-12 h-12 focus:outline-none"
+          >
+            <img
+              src="/base.png"
+              alt="Logo"
+              className={`w-12 h-12 absolute inset-0 transition-opacity duration-500 ${logoFlipped ? "opacity-0" : "opacity-100"}`}
+            />
+            <img
+              src="/mrisprite.png"
+              alt="Logo MRI"
+              className={`w-12 h-12 absolute inset-0 transition-opacity duration-500 ${logoFlipped ? "opacity-100" : "opacity-0"}`}
+            />
+          </button>
+          <span
+            className="text-[10px] font-mono font-bold uppercase tracking-widest dark:text-slate-500 text-slate-400 mt-0.5 select-none"
+          >
+            Cortex AI
+          </span>
+        </div>
+
+        {/* Right — controls */}
+        <div className="ml-auto flex items-center gap-2 z-10">
           <button
             onClick={onToggle}
             title={isDark ? "Switch to light mode" : "Switch to dark mode"}

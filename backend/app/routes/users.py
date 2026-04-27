@@ -48,6 +48,24 @@ class PatientProfile(BaseModel):
     blog_post: Optional[str] = None
 
 
+@router.get("/users/{user_id}/profile")
+async def get_profile(user_id: str):
+    client = get_client()
+    db = client[settings.MONGODB_DB]
+    try:
+        oid = ObjectId(user_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid user id")
+    user = await db.users.find_one({"_id": oid})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {
+        "is_patient": user.get("is_patient", False),
+        "can_be_contacted": user.get("can_be_contacted", False),
+        "blog_post": user.get("blog_post", ""),
+    }
+
+
 @router.put("/users/{user_id}/profile")
 async def update_profile(user_id: str, profile: PatientProfile):
     client = get_client()

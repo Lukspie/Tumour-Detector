@@ -141,31 +141,20 @@ export default function App() {
 
           <div className="relative w-full max-w-2xl mx-auto px-4 pt-12 pb-10 space-y-8">
             {/* ── Hero ── */}
-            <div className="text-center space-y-4">
-              <div className="flex items-center justify-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                <span className="text-xs font-mono tracking-widest uppercase dark:text-slate-600 text-slate-400">
-                  EfficientNet-B0 &middot; Grad-CAM &middot; Neural Analysis
-                </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+            <div className="text-center space-y-5">
+              <div>
+                <h1
+                  className="text-6xl sm:text-7xl font-black tracking-tight leading-none"
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                >
+                  <span className="dark:text-slate-100 text-slate-900">CORTEX</span>
+                  <span className="text-cyan-400"> AI</span>
+                </h1>
+                <div className="w-12 h-0.5 bg-cyan-500 dark:bg-cyan-400 mx-auto mt-4" />
               </div>
 
-              <h1
-                className="text-5xl sm:text-6xl font-black tracking-tighter leading-none"
-                style={{ fontFamily: "'Montserrat', sans-serif" }}
-              >
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-400 via-slate-100 to-cyan-400 animate-flicker">
-                  Brain Tumour
-                </span>
-                <br />
-                <span className="dark:text-slate-300 text-slate-700 text-4xl sm:text-5xl font-extrabold">
-                  Detection System
-                </span>
-              </h1>
-
-              <p className="text-sm font-mono dark:text-slate-500 text-slate-400 max-w-md mx-auto leading-relaxed">
+              <p className="text-sm font-mono dark:text-slate-400 text-slate-500 max-w-sm mx-auto leading-relaxed">
                 Upload a brain MRI scan for AI-powered tumour classification.
-                <br className="hidden sm:block" />
                 Returns confidence score and Grad-CAM heatmap of concern regions.
               </p>
 

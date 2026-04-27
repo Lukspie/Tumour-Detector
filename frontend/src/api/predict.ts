@@ -48,6 +48,18 @@ export async function loginUser(credentials: any) {
   return res.json();
 }
 
+export interface PatientProfileData {
+  is_patient: boolean;
+  can_be_contacted: boolean;
+  blog_post: string;
+}
+
+export async function getPatientProfile(userId: string): Promise<PatientProfileData> {
+  const res = await fetch(`${BASE}/users/${userId}/profile`);
+  if (!res.ok) throw new Error("Failed to fetch profile");
+  return res.json();
+}
+
 export async function updatePatientProfile(userId: string, profile: UserProfile) {
   const res = await fetch(`${BASE}/users/${userId}/profile`, {
     method: "PUT",
