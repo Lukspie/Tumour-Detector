@@ -65,10 +65,10 @@ export default function Header({ isDark, onToggle, user, onLogout, page, onNavig
             style={{ fontFamily: "'Montserrat', sans-serif" }}
             onClick={() => onNavigate("main")}
           >
-            Cortex — Brain Tumour Detection
+            Cortex AI
           </h1>
           <p className="text-xs dark:text-slate-500 text-slate-400">
-            EfficientNet-B0 &middot; Grad-CAM &middot; Cloud ML
+            Brain Tumour Detection
           </p>
         </div>
 
