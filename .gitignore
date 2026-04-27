@@ -9,7 +9,7 @@ dist/
 .pytest_cache/
 
 # Training dataset (download locally via kaggle CLI — not stored in repo)
-ml-service/data/
+
 
 # Model weights (large binary files — store in cloud storage)
 ml-service/weights/*.pth

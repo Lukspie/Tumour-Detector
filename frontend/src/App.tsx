@@ -8,10 +8,15 @@ import Auth from "./components/Auth";
 import UploadForm from "./components/UploadForm";
 import PatientCommunity from "./components/PatientCommunity";
 import RecentActivity from "./components/RecentActivity";
+import AboutPage from "./pages/AboutPage";
+import DatasetPage from "./pages/DatasetPage";
 import { PATIENTS } from "./data/patients";
+
+type Page = "main" | "about" | "dataset";
 
 export default function App() {
   const [isDark, setIsDark] = useState(true);
+  const [page, setPage] = useState<Page>("main");
   const [user, setUser] = useState<{ id: string; name: string } | null>(() => {
     try {
       const saved = localStorage.getItem("tumour_user");
@@ -83,52 +88,61 @@ export default function App() {
         onToggle={() => setIsDark((d) => !d)}
         user={user}
         onLogout={handleLogout}
+        page={page}
+        onNavigate={setPage}
       />
 
-      <main className="flex-1 w-full max-w-2xl mx-auto px-4 py-10 space-y-6">
-        {/* Upload card */}
-        <div className="dark:bg-mri-800 dark:border dark:border-mri-border bg-white border border-slate-200 rounded-2xl shadow-lg p-6">
-          <UploadForm onSubmit={handleSubmit} loading={loading} />
-        </div>
+      {page === "about" && (
+        <main className="flex-1">
+          <AboutPage />
+        </main>
+      )}
 
-        {/* Error */}
-        {error && (
-          <div className="dark:bg-red-950/30 dark:border-red-900/50 dark:text-red-400 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
-            <strong>Error:</strong> {error}
+      {page === "dataset" && (
+        <main className="flex-1">
+          <DatasetPage />
+        </main>
+      )}
+
+      {page === "main" && (
+        <main className="flex-1 w-full max-w-2xl mx-auto px-4 py-10 space-y-6">
+          <div className="dark:bg-mri-800 dark:border dark:border-mri-border bg-white border border-slate-200 rounded-2xl shadow-lg p-6">
+            <UploadForm onSubmit={handleSubmit} loading={loading} />
           </div>
-        )}
 
-        {/* Loading */}
-        {loading && (
-          <div className="dark:bg-mri-800 dark:border dark:border-mri-border bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-4">
-            <div className="inline-block w-10 h-10 border-4 dark:border-mri-border dark:border-t-cyan-400 border-slate-200 border-t-cyan-600 rounded-full animate-spin" />
-            <p className="dark:text-slate-500 text-slate-400 text-sm">Running AI analysis...</p>
-          </div>
-        )}
+          {error && (
+            <div className="dark:bg-red-950/30 dark:border-red-900/50 dark:text-red-400 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+              <strong>Error:</strong> {error}
+            </div>
+          )}
 
-        {/* Result */}
-        {!loading && result && (
-          <div className="space-y-6">
-            <ResultCard result={result} imageUrl={imageUrl} />
-            <PatientCommunity userId={user.id} />
-          </div>
-        )}
+          {loading && (
+            <div className="dark:bg-mri-800 dark:border dark:border-mri-border bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-4">
+              <div className="inline-block w-10 h-10 border-4 dark:border-mri-border dark:border-t-cyan-400 border-slate-200 border-t-cyan-600 rounded-full animate-spin" />
+              <p className="dark:text-slate-500 text-slate-400 text-sm">Running AI analysis...</p>
+            </div>
+          )}
 
-        {/* Recent Scans */}
-        <div className="dark:bg-mri-800 dark:border dark:border-mri-border bg-white border border-slate-200 rounded-2xl shadow-lg p-6">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xs font-semibold dark:text-slate-400 text-slate-500 uppercase tracking-widest">
-              Recent Scans
-            </h2>
-            {history.length + PATIENTS.length > 0 && (
+          {!loading && result && (
+            <div className="space-y-6">
+              <ResultCard result={result} imageUrl={imageUrl} />
+              <PatientCommunity userId={user.id} />
+            </div>
+          )}
+
+          <div className="dark:bg-mri-800 dark:border dark:border-mri-border bg-white border border-slate-200 rounded-2xl shadow-lg p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xs font-semibold dark:text-slate-400 text-slate-500 uppercase tracking-widest">
+                Recent Scans
+              </h2>
               <span className="text-xs dark:text-slate-600 text-slate-400">
                 {history.length + PATIENTS.length} total
               </span>
-            )}
+            </div>
+            <RecentScans history={history} patients={PATIENTS} loading={historyLoading} />
           </div>
-          <RecentScans history={history} patients={PATIENTS} loading={historyLoading} />
-        </div>
-      </main>
+        </main>
+      )}
 
       <footer className="text-center text-xs dark:text-slate-700 text-slate-400 py-4 dark:border-t dark:border-mri-border border-t border-slate-200">
         University project &mdash; not for clinical use &middot; EfficientNet-B0 + Grad-CAM

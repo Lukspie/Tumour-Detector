@@ -1,8 +1,12 @@
+type Page = "main" | "about" | "dataset";
+
 interface Props {
   isDark: boolean;
   onToggle: () => void;
   user: { name: string };
   onLogout: () => void;
+  page: Page;
+  onNavigate: (page: Page) => void;
 }
 
 function SunIcon() {
@@ -21,11 +25,28 @@ function MoonIcon() {
   );
 }
 
-export default function Header({ isDark, onToggle, user, onLogout }: Props) {
+export default function Header({ isDark, onToggle, user, onLogout, page, onNavigate }: Props) {
+  const navItem = (target: Page, label: string) => (
+    <button
+      onClick={() => onNavigate(target)}
+      className={`text-xs font-medium transition-colors px-1 pb-0.5 border-b ${
+        page === target
+          ? "dark:border-cyan-400 dark:text-cyan-400 border-cyan-600 text-cyan-600"
+          : "border-transparent dark:text-slate-400 dark:hover:text-slate-200 text-slate-500 hover:text-slate-800"
+      }`}
+    >
+      {label}
+    </button>
+  );
+
   return (
     <header className="bg-white dark:bg-mri-800 border-b border-slate-200 dark:border-mri-border text-slate-900 dark:text-slate-100 transition-colors duration-300">
       <div className="w-full px-6 py-4 flex items-center gap-4">
-        <div className="w-10 h-10 relative group cursor-pointer select-none flex-shrink-0">
+        <button
+          onClick={() => onNavigate("main")}
+          className="w-10 h-10 relative group cursor-pointer select-none flex-shrink-0 focus:outline-none"
+          aria-label="Go to home"
+        >
           <img
             src="/base.png"
             alt="Logo"
@@ -36,19 +57,25 @@ export default function Header({ isDark, onToggle, user, onLogout }: Props) {
             alt="Logo MRI"
             className="w-10 h-10 absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100"
           />
-        </div>
+        </button>
 
         <div>
           <h1
-            className="text-lg font-extrabold leading-tight tracking-wide dark:text-slate-100 text-slate-900"
+            className="text-lg font-extrabold leading-tight tracking-wide dark:text-slate-100 text-slate-900 cursor-pointer"
             style={{ fontFamily: "'Montserrat', sans-serif" }}
+            onClick={() => onNavigate("main")}
           >
-            Brain Tumour Detector
+            Cortex — Brain Tumour Detection
           </h1>
           <p className="text-xs dark:text-slate-500 text-slate-400">
             EfficientNet-B0 &middot; Grad-CAM &middot; Cloud ML
           </p>
         </div>
+
+        <nav className="hidden sm:flex items-center gap-5 ml-8">
+          {navItem("about", "About Us")}
+          {navItem("dataset", "Dataset")}
+        </nav>
 
         <div className="ml-auto flex items-center gap-3">
           <button
@@ -57,14 +84,17 @@ export default function Header({ isDark, onToggle, user, onLogout }: Props) {
             className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border dark:border-mri-border dark:text-slate-400 dark:hover:border-cyan-500 dark:hover:text-cyan-400 border-slate-300 text-slate-500 hover:border-cyan-500 hover:text-cyan-600 transition-colors"
           >
             {isDark ? <SunIcon /> : <MoonIcon />}
-            {isDark ? "Light mode" : "Dark mode"}
+            <span className="hidden sm:inline">{isDark ? "Light mode" : "Dark mode"}</span>
           </button>
 
+          <span className="text-xs dark:text-slate-500 text-slate-400 hidden sm:inline">
+            {user.name} &middot;{" "}
+          </span>
           <button
             onClick={onLogout}
             className="text-xs dark:text-slate-500 dark:hover:text-cyan-400 text-slate-400 hover:text-cyan-600 transition-colors hidden sm:block"
           >
-            {user.name} &middot; Logout
+            Logout
           </button>
         </div>
       </div>
