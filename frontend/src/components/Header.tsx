@@ -2,8 +2,17 @@ export default function Header() {
   return (
     <header className="bg-slate-900 text-white shadow-lg">
       <div className="max-w-5xl mx-auto px-6 py-4 flex items-center gap-4">
-        <div className="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center font-bold text-lg select-none">
-          AI
+        <div className="w-10 h-10 relative group cursor-pointer select-none flex-shrink-0">
+          <img
+            src="/base.png"
+            alt="Logo"
+            className="w-10 h-10 absolute inset-0 transition-opacity duration-300 opacity-100 group-hover:opacity-0"
+          />
+          <img
+            src="/mrisprite.png"
+            alt="Logo MRI"
+            className="w-10 h-10 absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+          />
         </div>
         <div>
           <h1 className="text-xl font-bold leading-tight tracking-wide">
