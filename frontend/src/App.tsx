@@ -214,19 +214,23 @@ export default function App() {
               </div>
             )}
 
-            {user && (
-              <div className="dark:bg-mri-800 dark:border dark:border-mri-border bg-white border border-slate-200 shadow-lg p-6">
-                <div className="flex items-center justify-between mb-5">
-                  <h2 className="text-xs font-mono font-semibold dark:text-slate-500 text-slate-500 uppercase tracking-widest">
-                    Recent Scans
-                  </h2>
-                  <span className="text-xs font-mono dark:text-slate-700 text-slate-400">
-                    {history.length + PATIENTS.length} total
-                  </span>
-                </div>
-                <RecentScans history={history} patients={PATIENTS} loading={historyLoading} />
+            <div className="dark:bg-mri-800 dark:border dark:border-mri-border bg-white border border-slate-200 shadow-lg p-6">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-xs font-mono font-semibold dark:text-slate-500 text-slate-500 uppercase tracking-widest">
+                  Recent Scans
+                </h2>
+                <span className="text-xs font-mono dark:text-slate-700 text-slate-400">
+                  {history.length + PATIENTS.length + (!user && result ? 1 : 0)} total
+                </span>
               </div>
-            )}
+              <RecentScans
+                history={history}
+                patients={PATIENTS}
+                loading={historyLoading}
+                userName={user?.name ?? "Guest"}
+                currentScan={!user ? result : null}
+              />
+            </div>
           </div>
         </main>
       )}

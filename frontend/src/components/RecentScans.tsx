@@ -1,10 +1,12 @@
-import type { HistoryItem } from "../api/predict";
+import type { HistoryItem, PredictionResult } from "../api/predict";
 import type { Patient } from "../data/patients";
 
 interface Props {
   history: HistoryItem[];
   patients: Patient[];
   loading: boolean;
+  userName: string;
+  currentScan?: PredictionResult | null;
 }
 
 type ScanEntry = {
@@ -18,11 +20,11 @@ type ScanEntry = {
 };
 
 function avatarInitials(entry: ScanEntry): string {
-  if (entry.isPatient) {
-    const parts = entry.displayName.split(" ");
-    return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase();
+  const words = entry.displayName.trim().split(/\s+/);
+  if (words.length >= 2) {
+    return (words[0][0] + words[1][0]).toUpperCase();
   }
-  return entry.displayName.replace(/\.[^.]+$/, "").slice(0, 2).toUpperCase();
+  return entry.displayName.slice(0, 2).toUpperCase();
 }
 
 function formatAgo(ms: number): string {
@@ -34,10 +36,10 @@ function formatAgo(ms: number): string {
   return `${Math.floor(h / 24)}d ago`;
 }
 
-export default function RecentScans({ history, patients, loading }: Props) {
+export default function RecentScans({ history, patients, loading, userName, currentScan }: Props) {
   if (loading) {
     return (
-      <p className="text-sm dark:text-slate-600 text-slate-400 text-center py-6">
+      <p className="text-xs font-mono dark:text-slate-600 text-slate-400 text-center py-6 uppercase tracking-widest">
         Loading...
       </p>
     );
@@ -45,9 +47,21 @@ export default function RecentScans({ history, patients, loading }: Props) {
 
   const now = Date.now();
 
+  const currentEntry: ScanEntry | null = currentScan
+    ? {
+        id: "current",
+        displayName: userName,
+        displaySub: "just now",
+        label: currentScan.label,
+        probability: currentScan.probability,
+        sortMs: 0,
+        isPatient: false,
+      }
+    : null;
+
   const historyEntries: ScanEntry[] = history.map((item) => ({
     id: item.id,
-    displayName: item.filename,
+    displayName: userName,
     displaySub: new Date(item.timestamp).toLocaleString(),
     label: item.label,
     probability: item.probability,
@@ -65,13 +79,15 @@ export default function RecentScans({ history, patients, loading }: Props) {
     isPatient: true,
   }));
 
-  const combined = [...historyEntries, ...patientEntries].sort(
-    (a, b) => a.sortMs - b.sortMs
-  );
+  const combined = [
+    ...(currentEntry ? [currentEntry] : []),
+    ...historyEntries,
+    ...patientEntries,
+  ].sort((a, b) => a.sortMs - b.sortMs);
 
   if (combined.length === 0) {
     return (
-      <p className="text-sm dark:text-slate-600 text-slate-400 text-center py-6">
+      <p className="text-xs font-mono dark:text-slate-600 text-slate-400 text-center py-6 uppercase tracking-widest">
         No scans yet.
       </p>
     );
@@ -88,7 +104,7 @@ export default function RecentScans({ history, patients, loading }: Props) {
         return (
           <li key={entry.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
             <div
-              className={`w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${
+              className={`w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold font-mono ${
                 isTumor
                   ? "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
                   : "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400"
@@ -101,19 +117,19 @@ export default function RecentScans({ history, patients, loading }: Props) {
               <p className="text-sm font-medium dark:text-slate-200 text-slate-700 truncate">
                 {entry.displayName}
               </p>
-              <p className="text-xs dark:text-slate-600 text-slate-400 truncate">
-                {entry.displaySub}
+              <p className="text-xs font-mono dark:text-slate-600 text-slate-400 truncate">
+                {entry.isPatient ? entry.displaySub : formatAgo(entry.sortMs)}
               </p>
             </div>
 
             <span
-              className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
+              className={`text-xs font-mono font-semibold px-2 py-0.5 rounded flex-shrink-0 ${
                 isTumor
                   ? "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
                   : "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400"
               }`}
             >
-              {isTumor ? "Tumor" : "No Tumor"}
+              {isTumor ? "Tumor" : "Clear"}
             </span>
 
             <div className="flex items-center gap-2 flex-shrink-0 w-20 hidden sm:flex">
@@ -123,13 +139,13 @@ export default function RecentScans({ history, patients, loading }: Props) {
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <span className="text-xs dark:text-slate-500 text-slate-400 w-7 text-right">
+              <span className="text-xs font-mono dark:text-slate-500 text-slate-400 w-7 text-right">
                 {pct}%
               </span>
             </div>
 
-            <span className="text-xs dark:text-slate-600 text-slate-400 flex-shrink-0 w-14 text-right hidden sm:block">
-              {formatAgo(entry.sortMs)}
+            <span className="text-xs font-mono dark:text-slate-600 text-slate-400 flex-shrink-0 w-14 text-right hidden sm:block">
+              {entry.id === "current" ? "now" : formatAgo(entry.sortMs)}
             </span>
           </li>
         );
