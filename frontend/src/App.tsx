@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { fetchHistory, predictTumour } from "./api/predict";
 import type { HistoryItem, PredictionResult } from "./api/predict";
 import Header from "./components/Header";
-import RecentScans from "./components/RecentScans";
 import ResultCard from "./components/ResultCard";
 import Auth from "./components/Auth";
 import UploadForm from "./components/UploadForm";
@@ -15,9 +14,14 @@ import { PATIENTS } from "./data/patients";
 
 type Page = "main" | "about" | "dataset" | "profile";
 
+const VALID_PAGES: Page[] = ["main", "about", "dataset", "profile"];
+
 export default function App() {
   const [isDark, setIsDark] = useState(true);
-  const [page, setPage] = useState<Page>("main");
+  const [page, setPage] = useState<Page>(() => {
+    const saved = localStorage.getItem("tumour_page") as Page | null;
+    return saved && VALID_PAGES.includes(saved) ? saved : "main";
+  });
   const [user, setUser] = useState<{ id: string; name: string } | null>(() => {
     try {
       const saved = localStorage.getItem("tumour_user");
@@ -38,6 +42,11 @@ export default function App() {
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
+
+  // Persist current page across refreshes
+  useEffect(() => {
+    localStorage.setItem("tumour_page", page);
+  }, [page]);
 
   const loadHistory = useCallback(async () => {
     setHistoryLoading(true);
@@ -78,6 +87,7 @@ export default function App() {
 
   const handleLogout = () => {
     localStorage.removeItem("tumour_user");
+    localStorage.removeItem("tumour_page");
     setUser(null);
     setPage("main");
   };
@@ -85,6 +95,16 @@ export default function App() {
   const handleShowAuth = (mode: "login" | "register") => {
     setAuthMode(mode);
     setShowAuthModal(true);
+  };
+
+  // Clear scan results when navigating back to main so user starts fresh
+  const handleNavigate = (newPage: Page) => {
+    if (newPage === "main") {
+      setResult(null);
+      setImageUrl("");
+      setError(null);
+    }
+    setPage(newPage);
   };
 
   return (
@@ -104,7 +124,7 @@ export default function App() {
         onLogout={handleLogout}
         onShowAuth={handleShowAuth}
         page={page}
-        onNavigate={setPage}
+        onNavigate={handleNavigate}
       />
 
       {page === "about" && (
@@ -121,13 +141,18 @@ export default function App() {
 
       {page === "profile" && user && (
         <main className="flex-1">
-          <ProfilePage user={user} />
+          <ProfilePage
+            user={user}
+            history={history}
+            historyLoading={historyLoading}
+            patients={PATIENTS}
+          />
         </main>
       )}
 
       {page === "main" && (
         <main className="flex-1 relative">
-          {/* Subtle grid background */}
+          {/* Grid background */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
@@ -136,7 +161,6 @@ export default function App() {
               backgroundSize: "48px 48px",
             }}
           />
-          {/* Radial fade so grid doesn't overpower bottom */}
           <div className="absolute bottom-0 left-0 right-0 h-48 dark:bg-gradient-to-t dark:from-mri-900 to-transparent pointer-events-none" />
 
           <div className="relative w-full max-w-2xl mx-auto px-4 pt-12 pb-10 space-y-8">
@@ -166,7 +190,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* ── Upload form (no card — self-contained) ── */}
+            {/* ── Upload form ── */}
             <div className="dark:bg-mri-800/80 bg-white dark:border dark:border-mri-border border border-slate-200 shadow-xl p-6">
               <UploadForm onSubmit={handleSubmit} loading={loading} />
             </div>
@@ -207,30 +231,12 @@ export default function App() {
                 {result.label === "tumor" && (
                   <PatientCommunity
                     userId={user?.id ?? null}
-                    userName={user?.name}
                     onShowAuth={handleShowAuth}
+                    onNavigateProfile={() => handleNavigate("profile")}
                   />
                 )}
               </div>
             )}
-
-            <div className="dark:bg-mri-800 dark:border dark:border-mri-border bg-white border border-slate-200 shadow-lg p-6">
-              <div className="flex items-center justify-between mb-5">
-                <h2 className="text-xs font-mono font-semibold dark:text-slate-500 text-slate-500 uppercase tracking-widest">
-                  Recent Scans
-                </h2>
-                <span className="text-xs font-mono dark:text-slate-700 text-slate-400">
-                  {history.length + PATIENTS.length + (!user && result ? 1 : 0)} total
-                </span>
-              </div>
-              <RecentScans
-                history={history}
-                patients={PATIENTS}
-                loading={historyLoading}
-                userName={user?.name ?? "Guest"}
-                currentScan={!user ? result : null}
-              />
-            </div>
           </div>
         </main>
       )}

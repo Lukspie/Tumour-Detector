@@ -46,6 +46,7 @@ class PatientProfile(BaseModel):
     is_patient: bool
     can_be_contacted: bool
     blog_post: Optional[str] = None
+    age: Optional[int] = None
 
 
 @router.get("/users/{user_id}/profile")
@@ -63,6 +64,7 @@ async def get_profile(user_id: str):
         "is_patient": user.get("is_patient", False),
         "can_be_contacted": user.get("can_be_contacted", False),
         "blog_post": user.get("blog_post", ""),
+        "age": user.get("age", None),
     }
 
 
@@ -80,6 +82,7 @@ async def update_profile(user_id: str, profile: PatientProfile):
             "is_patient": profile.is_patient,
             "can_be_contacted": profile.can_be_contacted,
             "blog_post": profile.blog_post,
+            "age": profile.age,
         }},
     )
     if result.matched_count == 0:

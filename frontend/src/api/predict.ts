@@ -26,32 +26,34 @@ export interface UserProfile {
   is_patient: boolean;
   can_be_contacted: boolean;
   blog_post?: string;
-}
-
-export async function registerUser(credentials: { username: string; password: string }) {
-  const res = await fetch(`${BASE}/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(credentials)
-  });
-  if (!res.ok) throw new Error("Registration failed");
-  return res.json();
-}
-
-export async function loginUser(credentials: any) {
-  const res = await fetch(`${BASE}/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(credentials)
-  });
-  if (!res.ok) throw new Error("Invalid credentials");
-  return res.json();
+  age?: number | null;
 }
 
 export interface PatientProfileData {
   is_patient: boolean;
   can_be_contacted: boolean;
   blog_post: string;
+  age: number | null;
+}
+
+export async function registerUser(credentials: { username: string; password: string }) {
+  const res = await fetch(`${BASE}/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials),
+  });
+  if (!res.ok) throw new Error("Registration failed");
+  return res.json();
+}
+
+export async function loginUser(credentials: { username: string; password: string }) {
+  const res = await fetch(`${BASE}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials),
+  });
+  if (!res.ok) throw new Error("Invalid credentials");
+  return res.json();
 }
 
 export async function getPatientProfile(userId: string): Promise<PatientProfileData> {
@@ -64,7 +66,7 @@ export async function updatePatientProfile(userId: string, profile: UserProfile)
   const res = await fetch(`${BASE}/users/${userId}/profile`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(profile)
+    body: JSON.stringify(profile),
   });
   if (!res.ok) throw new Error("Failed to update profile");
   return res.json();
@@ -73,7 +75,6 @@ export async function updatePatientProfile(userId: string, profile: UserProfile)
 export async function predictTumour(file: File): Promise<PredictionResult> {
   const body = new FormData();
   body.append("file", file);
-
   const res = await fetch(`${BASE}/predict`, { method: "POST", body });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
