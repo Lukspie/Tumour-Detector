@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-
 type Page = "main" | "about" | "dataset" | "profile";
 
 interface Props {
@@ -37,16 +35,6 @@ function LogoutIcon() {
 }
 
 export default function Header({ isDark, onToggle, user, onLogout, onShowAuth, page, onNavigate }: Props) {
-  const [logoFlipped, setLogoFlipped] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLogoFlipped(true);
-      setTimeout(() => setLogoFlipped(false), 900);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
   const navItem = (target: Page, label: string) => (
     <button
       onClick={() => onNavigate(target)}
@@ -62,40 +50,34 @@ export default function Header({ isDark, onToggle, user, onLogout, onShowAuth, p
 
   return (
     <header className="bg-white dark:bg-mri-800 border-b border-slate-200 dark:border-mri-border text-slate-900 dark:text-slate-100 transition-colors duration-300">
-      <div className="relative w-full px-6 py-2 flex items-center min-h-[60px]">
+      <div className="w-full px-6 py-2 flex items-center gap-4 min-h-[60px]">
 
-        {/* Left — nav */}
-        <nav className="hidden sm:flex items-center gap-5 z-10">
+        {/* Logo — hover switches image */}
+        <button
+          onClick={() => onNavigate("main")}
+          aria-label="Go to home"
+          className="relative w-12 h-12 group flex-shrink-0 focus:outline-none"
+        >
+          <img
+            src="/base.png"
+            alt="Logo"
+            className="w-12 h-12 absolute inset-0 transition-opacity duration-300 opacity-100 group-hover:opacity-0"
+          />
+          <img
+            src="/mrisprite.png"
+            alt="Logo MRI"
+            className="w-12 h-12 absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+          />
+        </button>
+
+        {/* Nav */}
+        <nav className="hidden sm:flex items-center gap-5">
           {navItem("about", "About")}
           {navItem("dataset", "Dataset")}
         </nav>
 
-        {/* Center — logo (absolutely centred) */}
-        <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
-          <button
-            onClick={() => onNavigate("main")}
-            aria-label="Go to home"
-            className="relative w-12 h-12 focus:outline-none"
-          >
-            <img
-              src="/base.png"
-              alt="Logo"
-              className={`w-12 h-12 absolute inset-0 transition-opacity duration-500 ${logoFlipped ? "opacity-0" : "opacity-100"}`}
-            />
-            <img
-              src="/mrisprite.png"
-              alt="Logo MRI"
-              className={`w-12 h-12 absolute inset-0 transition-opacity duration-500 ${logoFlipped ? "opacity-100" : "opacity-0"}`}
-            />
-          </button>
-          <span
-            className="text-[10px] font-mono font-bold uppercase tracking-widest dark:text-slate-500 text-slate-400 mt-0.5 select-none"
-          >
-          </span>
-        </div>
-
         {/* Right — controls */}
-        <div className="ml-auto flex items-center gap-2 z-10">
+        <div className="ml-auto flex items-center gap-2">
           <button
             onClick={onToggle}
             title={isDark ? "Switch to light mode" : "Switch to dark mode"}
